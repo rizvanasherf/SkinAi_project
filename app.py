@@ -22,6 +22,7 @@ Usage:
 
 import os
 import time
+import boto3
 import logging
 import numpy as np
 import tensorflow as tf
@@ -33,6 +34,7 @@ from langchain.chains import RetrievalQA
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from logging.handlers import RotatingFileHandler
+
 
 
 
@@ -101,6 +103,11 @@ HF_TOKEN = os.getenv("HF_TOKEN")
 MODEL_PATH = os.getenv("MODEL_PATH")
 huggingface_repo_id = "mistralai/Mistral-7B-Instruct-v0.3"
 DB_FAISS_PATH = os.getenv("DB_FAISS_PATH")
+S3_BUCKET_NAME = os.getenv("S3_BUCKET_NAME")
+S3_MODEL_KEY = os.getenv("S3_MODEL_KEY")
+AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY =os.getenv("AWS_SECRET_ACCESS_KEY")
+AWS_DEFAULT_REGION = os.getenv("AWS_DEFAULT_REGION")
 
 # Validate environment variables
 if not all([HF_TOKEN, MODEL_PATH, DB_FAISS_PATH]):
@@ -239,6 +246,29 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+# Initialize S3 client
+s3 = boto3.client('s3')
+
+def download_model_from_s3(bucket_name, s3_model_key, local_model_path):
+    """
+    Download the model from S3 to the local path.
+
+    Args:
+        bucket_name (str): Name of the S3 bucket.
+        s3_model_key (str): Key of the model in the S3 bucket.
+        local_model_path (str): Local path to save the downloaded model.
+
+    Raises:
+        Exception: If the download fails.
+    """
+    try:
+        logger.info(f"Downloading model from S3: {s3_model_key}")
+        s3.download_file(bucket_name, s3_model_key, local_model_path)
+        logger.info("Model downloaded from S3 successfully.")
+    except Exception as e:
+        logger.error(f"Failed to download model from S3: {str(e)}")
+        raise e
+
 
 @st.cache_resource(show_spinner=False) 
 def load_model():
@@ -257,6 +287,13 @@ def load_model():
     logger.info("Loading TensorFlow model...")
     progress_bar = st.progress(0)
     status_text = st.empty()
+    
+    # Check if the model exists locally
+    if not os.path.exists(MODEL_PATH):
+        logger.info("Model not found locally. Downloading from S3...")
+        download_model_from_s3(S3_BUCKET_NAME, S3_MODEL_KEY, MODEL_PATH)
+    
+    # Display progress bar    
     for percent in range(0, 101, 10): 
         progress_bar.progress(percent)
         status_text.markdown(f"<p class='status-text'>Loading App... {percent}%</p>", unsafe_allow_html=True)

@@ -102,3 +102,4 @@ urllib3==2.3.0
 validators==0.34.0
 watchdog==6.0.0
 webencodings==0.5.1
+boto3
