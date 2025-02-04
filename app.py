@@ -249,7 +249,7 @@ st.markdown(
 # Initialize S3 client
 s3 = boto3.client('s3')
 
-def download_model_from_s3(bucket_name, s3_model_key, local_model_path):
+def download_model_from_s3(S3_BUCKET_NAME, S3_MODEL_KEY, MODEL_PATH):
     """
     Download the model from S3 to the local path.
 
@@ -262,8 +262,8 @@ def download_model_from_s3(bucket_name, s3_model_key, local_model_path):
         Exception: If the download fails.
     """
     try:
-        logger.info(f"Downloading model from S3: {s3_model_key}")
-        s3.download_file(bucket_name, s3_model_key, local_model_path)
+        logger.info(f"Downloading model from S3: {S3_MODEL_KEY}")
+        s3.download_file(S3_BUCKET_NAME, S3_MODEL_KEY, MODEL_PATH)
         logger.info("Model downloaded from S3 successfully.")
     except Exception as e:
         logger.error(f"Failed to download model from S3: {str(e)}")
