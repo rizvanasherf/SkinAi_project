@@ -64,7 +64,6 @@ PyQt5==5.15.10
 python-dateutil==2.9.0.post0
 python-dotenv==1.0.1
 pytz==2024.2
-pywin32==307
 referencing==0.36.1
 regex==2024.11.6
 requests==2.32.3
