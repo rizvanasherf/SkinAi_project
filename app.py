@@ -289,7 +289,8 @@ def load_model():
     status_text = st.empty()
     
     # Check if the model exists locally
-    if not os.path.exists(MODEL_PATH):
+    LOCAL_MODEL_PATH = os.path.join(os.getcwd(), MODEL_PATH)
+    if not os.path.exists(LOCAL_MODEL_PATH):
         logger.info("Model not found locally. Downloading from S3...")
         download_model_from_s3(S3_BUCKET_NAME, S3_MODEL_KEY, MODEL_PATH)
     
