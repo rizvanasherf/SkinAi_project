@@ -37,6 +37,7 @@ from logging.handlers import RotatingFileHandler
 
 
 
+st.set_page_config(layout="centered") 
 
 #  logging configuration 
 if 'logger_initialized' not in st.session_state:
